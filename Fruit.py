@@ -1,6 +1,3 @@
-#COS 470/570: Fruit dataloader example
-#Xin Zhang
-
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
