@@ -1,6 +1,9 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+import torch.nn.functional as F
+import torch.nn as nn
+import torch.optim as optim
 import os
 from PIL import Image
 import numpy as np
@@ -17,7 +20,6 @@ def edge_detection(image):
     return Image.fromarray(edges)
 
 # Define transformations for the input data
-# We need to write our function to detect the edges of the image and then resize them
 transform = transforms.Compose([
     transforms.Lambda(edge_detection),
     transforms.Resize((200,200)),                  
@@ -61,7 +63,14 @@ class FruitDataset(Dataset):
             image = self.transform(image)
 
         return image, label
+    
+#CNN model
 
+# Model, Loss, and Optimizer
+model = FruitCNN()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+# optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 # Create instances of the CustomDataset for training, validation, and testing
 train_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="train")
