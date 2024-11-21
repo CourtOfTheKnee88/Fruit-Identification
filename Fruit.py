@@ -64,7 +64,32 @@ class FruitDataset(Dataset):
 
         return image, label
     
-#CNN model
+# CNN model
+class FruitCNN(nn.Module):
+    def __init__(self):
+        super(FruitCNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 16, 3, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
+        self.fc1 = nn.Linear(32 * 64 * 64, 120)  
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 3)  # 3 classes
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.max_pool2d(x,2,2)
+        x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x,2,2)
+        x = x.view(-1, 32 * 64 * 64)  
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+       
+transform = transforms.Compose([
+    transforms.Resize((256, 256)),  
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 # Model, Loss, and Optimizer
 model = FruitCNN()
