@@ -6,9 +6,23 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import os
 from PIL import Image
+import numpy as np
+import cv2 as cv
+
+
 
 # Define transformations for the input data
+# We need to write our function to detect the edges of the image and then resize them
 transform = transforms.Compose([
+    # Look in each folder to find the images and change the color to gray scale
+    # Apply Gaussian Blur
+    # Edge detection
+    # Find contours
+    # Loop over the contours
+    # Approximate the contour
+    # Get the top, left, bottom, and right most points
+    # Use it to generate our area of interest
+    # Resize image if needed
     transforms.Resize((224,224)),                  
     transforms.ToTensor(),             
     # these value are the mean/standard deviation of the ImageNet
