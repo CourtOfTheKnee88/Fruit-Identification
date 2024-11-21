@@ -9,23 +9,22 @@ from PIL import Image
 import numpy as np
 import cv2 as cv
 
-
+def edge_detection(image):
+    # Convert to grayscale
+    gray = cv.cvtColor(np.array(image), cv.COLOR_RGB2GRAY)
+    # Apply Gaussian Blur
+    blurred = cv.GaussianBlur(gray, (5, 5), 0)
+    # Edge detection
+    edges = cv.Canny(blurred, 10, 435)
+    # Convert back to PIL Image
+    return Image.fromarray(edges)
 
 # Define transformations for the input data
 # We need to write our function to detect the edges of the image and then resize them
 transform = transforms.Compose([
-    # Look in each folder to find the images and change the color to gray scale
-    # Apply Gaussian Blur
-    # Edge detection
-    # Find contours
-    # Loop over the contours
-    # Approximate the contour
-    # Get the top, left, bottom, and right most points
-    # Use it to generate our area of interest
-    # Resize image if needed
-    transforms.Resize((224,224)),                  
-    transforms.ToTensor(),             
-    # these value are the mean/standard deviation of the ImageNet
+    transforms.Lambda(edge_detection),
+    transforms.Resize((200,200)),                  
+    transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  
 ])
 
@@ -46,9 +45,12 @@ class FruitDataset(Dataset):
         else:
             data_dir = os.path.join(root, "valid")
         for label in os.listdir(data_dir):
-            for image_filename in os.listdir(os.path.join(data_dir, label)):
-                self.images.append(os.path.join(data_dir, label, image_filename))
-                self.labels.append(label)
+            if label is not dir:
+                pass
+            else:
+                for image_filename in os.listdir(os.path.join(data_dir, label)):
+                    self.images.append(os.path.join(data_dir, label, image_filename))
+                    self.labels.append(label)
 
     def __len__(self):
         return len(self.images)
@@ -65,12 +67,12 @@ class FruitDataset(Dataset):
 
 
 # Create instances of the CustomDataset for training, validation, and testing
-train_dataset = FruitDataset(root="FruitClassification", transform=transform, subset="train")
-val_dataset = FruitDataset(root="FruitClassification", transform=transform, subset="val")
-test_dataset = FruitDataset(root="FruitClassification", transform=transform, subset="test")
+train_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="train")
+val_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="val")
+test_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="test")
 
 # Create data loaders
-train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=True)
+train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=False)
 valid_loader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 
