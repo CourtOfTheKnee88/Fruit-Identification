@@ -16,7 +16,8 @@ def edge_detection(image):
     blurred = cv.GaussianBlur(gray, (5, 5), 0)
     # Edge detection
     edges = cv.Canny(blurred, 10, 435)
-    # Convert back to PIL Image
+    # Convert back to PIL Image with 3 channels
+    edges = np.stack([edges] * 3, axis=-1)  # Duplicate grayscale into 3 channels
     return Image.fromarray(edges)
 
 # Define transformations for the input data
@@ -44,8 +45,8 @@ class FruitDataset(Dataset):
         else:
             data_dir = os.path.join(root, "valid")
         for label in os.listdir(data_dir):
-            if label is not dir:
-                pass
+            if not os.path.isdir(os.path.join(data_dir, label)):
+                continue
             else:
                 for image_filename in os.listdir(os.path.join(data_dir, label)):
                     self.images.append(os.path.join(data_dir, label, image_filename))
@@ -97,15 +98,17 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 # optimizer = optim.Adam(model.parameters(), lr=0.01)
 
+batch_size = 32
+
 # Create instances of the CustomDataset for training, validation, and testing
-train_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="train")
-val_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="val")
-test_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="test")
+train_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
+val_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="val")
+test_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="test")
 
 # Create data loaders
-train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=False)
-valid_loader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
-test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
+valid_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # use the dataloader
 for batch_id, (data, label) in enumerate(train_loader):
@@ -115,3 +118,5 @@ for batch_id, (data, label) in enumerate(train_loader):
     print("Label Shape:")
     print(len(label))
     break
+
+
