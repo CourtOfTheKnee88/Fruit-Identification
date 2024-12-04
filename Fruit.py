@@ -104,9 +104,9 @@ class FruitCNN(nn.Module):
 
 batch_size = 20
 
-train_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
-val_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="valid")
-test_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="test")
+train_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="train")
+val_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="valid")
+test_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="test")
 
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 valid_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
