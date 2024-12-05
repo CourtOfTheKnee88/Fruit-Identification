@@ -22,9 +22,13 @@ def edge_detection(image):
 transform = transforms.Compose([
     transforms.Lambda(edge_detection),
     transforms.Resize((200, 200)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(15),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
+
 
 class_name_id = {"Apple": 0, "Banana": 1, "Grape": 2, "Mango": 3, "Strawberry": 4}
 
@@ -64,7 +68,7 @@ class FruitDataset(Dataset):
 
         return image, label
 
-batch_size = 20
+batch_size = 12
 
 train_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
 val_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="valid")
@@ -89,11 +93,11 @@ class FruitCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2)
         )
-        # self.layer3 = nn.Sequential(
-        #     nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
-        #     nn.BatchNorm2d(384),
-        #     nn.ReLU()
-        # )
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(384),
+            nn.ReLU()
+        )
         # self.layer4 = nn.Sequential(
         #     nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
         #     nn.BatchNorm2d(384),
@@ -124,13 +128,14 @@ class FruitCNN(nn.Module):
     def _get_conv_output_size(self, shape):
         dummy_input = torch.zeros(1, *shape)
         # output = self.layer5(self.layer4(self.layer3(self.layer2(self.layer1(dummy_input)))))
-        output = self.layer2(self.layer1(dummy_input))
+        # output = self.layer2(self.layer1(dummy_input))
+        output = self.layer3(self.layer2(self.layer1(dummy_input)))
         return output.numel()
 
     def forward(self, x):
         x = self.layer1(x)
         x = self.layer2(x)
-        # x = self.layer3(x)
+        x = self.layer3(x)
         # x = self.layer4(x)
         # x = self.layer5(x)
         x = torch.flatten(x, 1)
@@ -138,6 +143,44 @@ class FruitCNN(nn.Module):
         x = self.fc1(x)
         x = self.fc2(x)
         return x
+    #     self.layer1 = nn.Sequential(
+    #         nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
+    #         nn.BatchNorm2d(64),
+    #         nn.ReLU(),
+    #         nn.MaxPool2d(kernel_size=2, stride=2)
+    #     )
+    #     self.layer2 = nn.Sequential(
+    #         nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+    #         nn.BatchNorm2d(128),
+    #         nn.ReLU(),
+    #         nn.MaxPool2d(kernel_size=2, stride=2)
+    #     )
+    #     self.layer3 = nn.Sequential(
+    #         nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
+    #         nn.BatchNorm2d(256),
+    #         nn.ReLU()
+    #     )
+    #     self.layer4 = nn.Sequential(
+    #         nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+    #         nn.BatchNorm2d(256),
+    #         nn.ReLU(),
+    #         nn.MaxPool2d(kernel_size=2, stride=2)
+    #     )
+    #     self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+    #     self.fc = nn.Sequential(
+    #         nn.Dropout(0.5),
+    #         nn.Linear(256, num_classes)
+    #     )
+
+    # def forward(self, x):
+    #     x = self.layer1(x)
+    #     x = self.layer2(x)
+    #     x = self.layer3(x)
+    #     x = self.layer4(x)
+    #     x = self.global_avg_pool(x)
+    #     x = torch.flatten(x, 1)
+    #     x = self.fc(x)
+    #     return x
 
 # Initialize the Model, Loss Function, and Optimizer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -150,7 +193,7 @@ optimizer  = optim.SGD(model.parameters(), lr=0.1)
 print("Beginning Training...")
 
 # Training Loop
-num_epochs = 10
+num_epochs = 1
 for epoch in range(num_epochs):
     model.train()
     correct_train = 0
