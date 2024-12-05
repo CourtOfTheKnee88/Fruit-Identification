@@ -102,9 +102,9 @@ class FruitCNN(nn.Module):
     self.fc2= nn.Sequential(
         nn.Linear(4096, num_classes))
 
-batch_size = 16
-num_epochs = 25
-learning_rate = 0.05
+batch_size = 18
+num_epochs = 20
+learning_rate = 0.01
 
 train_dataset = FruitDataset(root="C:/Users/court/OneDrive/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
 val_dataset = FruitDataset(root="C:/Users/court/OneDrive/Documents/GitHub/Fruit-Identification", transform=transform, subset="valid")
@@ -129,22 +129,22 @@ class FruitCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2)
         )
-        # self.layer3 = nn.Sequential(
-        #     nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
-        #     nn.BatchNorm2d(384),
-        #     nn.ReLU()
-        # )
-        # self.layer4 = nn.Sequential(
-        #     nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
-        #     nn.BatchNorm2d(384),
-        #     nn.ReLU()
-        # )
-        # self.layer5 = nn.Sequential(
-        #     nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=1),
-        #     nn.BatchNorm2d(256),
-        #     nn.ReLU(),
-        #     nn.MaxPool2d(kernel_size=3, stride=2)
-        # )
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(384),
+            nn.ReLU()
+        )
+        self.layer4 = nn.Sequential(
+            nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(384),
+            nn.ReLU()
+        )
+        self.layer5 = nn.Sequential(
+            nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=3, stride=2)
+        )
 
         self.flatten_size = self._get_conv_output_size((3, 200, 200))
         self.fc = nn.Sequential(
@@ -163,7 +163,7 @@ class FruitCNN(nn.Module):
 
     def _get_conv_output_size(self, shape):
         dummy_input = torch.zeros(1, *shape)
-        # output = self.layer5(self.layer4(self.layer3(self.layer2(self.layer1(dummy_input)))))
+        output = self.layer5(self.layer4(self.layer3(self.layer2(self.layer1(dummy_input)))))
         output = self.layer2(self.layer1(dummy_input))
         return output.numel()
 
@@ -185,7 +185,7 @@ print(f"Using device: {device}")  # Add this line to print the device being used
 model = FruitCNN().to(device)
 
 criterion = nn.CrossEntropyLoss()
-# optimizer = optim.Adam(model.parameters(), lr=0.001)
+# optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 optimizer  = optim.SGD(model.parameters(), lr=learning_rate)
 
 print("Beginning Training...")
