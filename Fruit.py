@@ -14,7 +14,7 @@ from PIL import UnidentifiedImageError
 def edge_detection(image):
     gray = cv.cvtColor(np.array(image), cv.COLOR_RGB2GRAY)
     blurred = cv.GaussianBlur(gray, (5, 5), 0)
-    edges = cv.Canny(blurred, 10, 435)
+    edges = cv.Canny(blurred, 10, 200)
     edges = np.stack([edges] * 3, axis=-1)
     return Image.fromarray(edges)
 
@@ -102,7 +102,7 @@ class FruitCNN(nn.Module):
     self.fc2= nn.Sequential(
         nn.Linear(4096, num_classes))
 
-batch_size = 18
+batch_size = 20
 num_epochs = 20
 learning_rate = 0.01
 
