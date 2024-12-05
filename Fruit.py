@@ -102,11 +102,13 @@ class FruitCNN(nn.Module):
     self.fc2= nn.Sequential(
         nn.Linear(4096, num_classes))
 
-batch_size = 20
+batch_size = 16
+num_epochs = 25
+learning_rate = 0.05
 
-train_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="train")
-val_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="valid")
-test_dataset = FruitDataset(root="C:/Users/court/Desktop/Fruit-Identification", transform=transform, subset="test")
+train_dataset = FruitDataset(root="C:/Users/court/OneDrive/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
+val_dataset = FruitDataset(root="C:/Users/court/OneDrive/Documents/GitHub/Fruit-Identification", transform=transform, subset="valid")
+test_dataset = FruitDataset(root="C:/Users/court/OneDrive/Documents/GitHub/Fruit-Identification", transform=transform, subset="test")
 
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 valid_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
@@ -179,16 +181,16 @@ class FruitCNN(nn.Module):
 
 # Initialize the Model, Loss Function, and Optimizer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")  # Add this line to print the device being used
 model = FruitCNN().to(device)
 
 criterion = nn.CrossEntropyLoss()
 # optimizer = optim.Adam(model.parameters(), lr=0.001)
-optimizer  = optim.SGD(model.parameters(), lr=0.1)
+optimizer  = optim.SGD(model.parameters(), lr=learning_rate)
 
 print("Beginning Training...")
 
 # Training Loop
-num_epochs = 10
 for epoch in range(num_epochs):
     model.train()
     correct_train = 0
