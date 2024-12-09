@@ -18,7 +18,7 @@ from PIL import UnidentifiedImageError
 def edge_detection(image):
     gray = cv.cvtColor(np.array(image), cv.COLOR_RGB2GRAY)
     blurred = cv.GaussianBlur(gray, (5, 5), 0)
-    edges = cv.Canny(blurred, 10, 435)
+    edges = cv.Canny(blurred, 10, 150) # Consider changing last variable in Canny(). Courtney did 200
     edges = np.stack([edges] * 3, axis=-1)
     return Image.fromarray(edges)
 
@@ -96,9 +96,9 @@ model = FruitResNet50(num_classes=len(class_name_id)).to(device)
 
 # Define Loss and Optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0001)
+# optimizer = optim.Adam(model.parameters(), lr=0.0001)
 # optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-4)
-# optimizer = optim.SGD(model.parameters(), lr=0.001)
+optimizer = optim.SGD(model.parameters(), lr=0.005)
 
 # Transformations (adjust input size for ResNet-50)
 transform = transforms.Compose([
@@ -109,7 +109,7 @@ transform = transforms.Compose([
 ])
 
 # Datasets and Dataloaders
-batch_size = 32
+batch_size = 20
 train_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="train")
 val_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="valid")
 test_dataset = FruitDataset(root="/Users/nathanielserrano/Documents/GitHub/Fruit-Identification", transform=transform, subset="test")
@@ -120,7 +120,7 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 print("Beginning Training...")
 # Training Loop
-num_epochs = 4
+num_epochs = 20
 best_val_accuracy = 0
 
 for epoch in range(num_epochs):
