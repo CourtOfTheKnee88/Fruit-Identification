@@ -82,9 +82,14 @@ class FruitResNet50(nn.Module):
         self.model.fc = nn.Sequential(
             nn.Linear(in_features, 256),
             nn.ReLU(),
-            nn.Dropout(p=0.5),
+            nn.Dropout(p=0.25),          # Change p value
             nn.Linear(256, num_classes)
         )
+
+        for param in self.model.parameters():
+            param.requires_grad = False
+        for param in self.model.fc.parameters():
+            param.requires_grad = True
 
     def forward(self, x):
         return self.model(x)
